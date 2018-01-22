@@ -20,56 +20,60 @@
 require 'qpid_proton'
 require 'optparse'
 
-class NuageMB < Qpid::Proton::Handler::MessagingHandler
+class NuageMB < Qpid::Proton::MessagingHandler
 
   def initialize(topics, opts)
     super()
     @topics = topics
     @opts = opts
+    @url = @opts.delete(:url)
     @test_connection = @opts.delete(:test_connection)
   end
 
-  def on_start(event)
-    event.container.container_id = "Ruby AMQP"
-    conn = event.container.connect(@opts)
-    @topics.each { |topic| event.container.create_receiver(conn, :source => "topic://#{topic}") }
+  def on_container_start(container)
+    conn = container.connect(@url, @opts)
+    @topics.each { |topic| conn.open_receiver("topic://#{topic}") }
     puts "started"
   end
 
-  def on_connection_opened(event)
+  def on_connection_open(connection)
     puts "opened"
-    event.container.stop if @test_connection
+    connection.container.stop if @test_connection
   end
 
-  def on_connection_closed(event)
+  def on_connection_closed(connection)
     puts "closed"
   end
 
-  def on_connection_error(event)
+  def on_connection_error(connection)
     puts "on_connection_error"
   end
 
-  def on_message(event)
-    puts event.message.body
+  def on_message(delivery, message)
+    puts message.body
   end
 
-  def on_transport_error(event)
+  def on_transport_error(transport)
     puts "on_transport_error"
   end
 end
 
-urls = [ENV['NUAGE_AMQP']]
+url = ENV['NUAGE_AMQP_URL']
+username = ENV['NUAGE_AMQP_USERNAME']
+password = ENV['NUAGE_AMQP_PASSWORD']
 
 options = {
   :sasl_allowed_mechs        => "PLAIN", 
   :sasl_allow_insecure_mechs => true,
   :test_connection           => false,
-  :urls                      => urls}
+  :url                       => url,
+  :user                      => username,
+  :password                  => password}
 
 loop do
   begin
-    hw = NuageMB.new(["topic/CNAMessages", "topic/CNAAlarms"], options)
-    Qpid::Proton::Reactor::Container.new(hw).run
+    hw = NuageMB.new(["topic/CNAMessages", "topic/CNAAlarms"], options.clone)
+    Qpid::Proton::Container.new(hw).run
   rescue => e
     puts "Caught exception #{e}"
   end

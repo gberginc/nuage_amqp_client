@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
 
-gem "qpid_proton", "~>0.18"
+gem "qpid_proton", "~>0.19"
