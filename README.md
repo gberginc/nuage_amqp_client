@@ -1,13 +1,24 @@
+Testing on CentOS 7 using `vagrant`:
+
+    $ vagrant up
+    # Wait a few minutes for VM provisioning to terminate
+    $ vagrant ssh
+
+    [vagrant] $ export NUAGE_AMQP_URL='amqp://amqp_host:amqp_port'
+    [vagrant] $ export NUAGE_AMQP_USERNAME='user'
+    [vagrant] $ export NUAGE_AMQP_PASSWORD='pass'
+    [vagrant] $ cd nuage_amqp_client
+    [vagrant] $ bundle exec ruby nuage_amqp_client.rb
+
+    # If you would like to debug the damn thing, run
+    [vagrant] $ PN_TRACE_FRM=1 bundle exec ruby nuage_amqp_client.rb
+
+Manual setup:
+
 ```
-# Install SASL packages (no need for devel versions)
-$ yum install cyrus-sasl cyrus-sasl-plain
-
-# Install swig to allow generation of Ruby bindings
-$ yum install swig
-
-# Install Qpid proton development package (EPEL is required)
+# Install Qpid proton development package (EPEL is required) and dependencies
 $ curl https://copr.fedorainfracloud.org/coprs/simaishi/test/repo/epel-7/simaishi-test-epel-7.repo | sudo tee /etc/yum.repos.d/qpid-proton.repo
-$ yum install qpid-proton-c-devel
+$ sudo yum install -y qpid-proton-c-devel cyrus-sasl cyrus-sasl-plain
 
 # Install the required gem
 $ bundle install
