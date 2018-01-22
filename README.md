@@ -6,14 +6,16 @@ $ yum install cyrus-sasl cyrus-sasl-plain
 $ yum install swig
 
 # Install Qpid proton development package (EPEL is required)
-$ rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+$ curl https://copr.fedorainfracloud.org/coprs/simaishi/test/repo/epel-7/simaishi-test-epel-7.repo | sudo tee /etc/yum.repos.d/qpid-proton.repo
 $ yum install qpid-proton-c-devel
 
 # Install the required gem
 $ bundle install
 
 # Export AMQP access point into environment
-$ export NUAGE_AMQP='amqp://user:pass@amqp_host:amqp_port'
+$ export NUAGE_AMQP_URL='amqp://amqp_host:amqp_port'
+$ export NUAGE_AMQP_USERNAME='user'
+$ export NUAGE_AMQP_PASSWORD='pass'
 
 # Run the script
 $ bundle exec ruby nuage_amqp_client.rb
